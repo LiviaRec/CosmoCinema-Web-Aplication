@@ -1,0 +1,2 @@
+function generateToken(user) {
+}
