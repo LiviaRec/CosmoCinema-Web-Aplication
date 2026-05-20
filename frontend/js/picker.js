@@ -1,9 +1,9 @@
 let currentMovie = null;
 
-// =================== LOAD DROPDOWNS ===================
+
 async function loadDropdowns() {
   try {
-    // Genres from TMDB via backend
+    // Genres
     const genres = await apiFetch('/movies/genres');
     const genreSelect = document.getElementById('genre-select');
     genres.forEach(g => {
@@ -37,7 +37,6 @@ async function loadDropdowns() {
   }
 }
 
-// =================== PICK MOVIE ===================
 async function pickMovie(random) {
   const loading = document.getElementById('picker-loading');
   const result = document.getElementById('picker-result');
@@ -93,7 +92,6 @@ async function pickMovie(random) {
   }
 }
 
-// =================== HEART ===================
 async function toggleHeart() {
   if (!auth.isLoggedIn()) { openModal('signin'); return; }
   if (!currentMovie) return;
@@ -125,7 +123,6 @@ async function toggleHeart() {
   }
 }
 
-// =================== BOOKMARK (WATCHLIST) ===================
 async function toggleBookmark() {
   if (!auth.isLoggedIn()) { openModal('signin'); return; }
   if (!currentMovie) return;
@@ -161,5 +158,4 @@ async function toggleBookmark() {
   }
 }
 
-// =================== INIT ===================
 document.addEventListener('DOMContentLoaded', loadDropdowns);

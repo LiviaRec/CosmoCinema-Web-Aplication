@@ -7,7 +7,7 @@ function generateToken(user) {
     return jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn : '7d'});
 }
 
-function requireAuth(request, response, next) {
+function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'No token provided' });
@@ -23,7 +23,7 @@ function requireAuth(request, response, next) {
     }
 }
 
-function register(request, response) {
+function register(req, res) {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password)
@@ -53,7 +53,7 @@ function register(request, response) {
   }
 }
 
-function login(request, response) {
+function login(req, res) {
     const { email, password } = req.body;
 
     if (!email || !password)

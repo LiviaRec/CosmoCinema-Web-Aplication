@@ -23,9 +23,11 @@ const DURATION_MAP = {
 
 async function tmdbFetch(path, param = {}) {
     const url = new URL(`${TMDB_BASE}${path}`);
-    url.searchParams.set('api_key', API_KEY);
+    url.searchParams.set('api_key', TMDB_KEY);
     url.searchParams.set('language', 'en-US');
-    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    for (const [k, v] of Object.entries(params)) {
+        url.searchParams.set(k, v);
+    } 
     const res = await fetch(url.toString());
     if (!res.ok) throw new Error(`TMDB error: ${res.status}`);
     return res.json();

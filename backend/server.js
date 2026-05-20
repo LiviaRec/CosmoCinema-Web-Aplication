@@ -75,3 +75,89 @@ app.get('/api/movies/surprise', async (req, res) => {
 });
 
 //favourites routes
+
+//get all favourites for user
+app.get('/api/favourites', requireAuth, (req, res) => {
+    const favs = favouriteQueries.getAll.all(req.user.id);
+    res.json(favs);
+});
+
+//add to favourites
+app.post('/api/favourites', requireAuth, (req, res) => {
+    const { tmdb_id, title, poster_path, overview, release_year } = req.body;
+    if (!tmdb_id || !title) return res.status(400).json({ error: 'tmdb_id and title are required' });
+    favouriteQueries.add.run(req.user.id, tmdb_id, title, poster_path, overview, release_year);
+    res.status(201).json({ message: 'Added to favourites' });
+});
+
+//remove from favourites
+app.delete('/api/favourites/:tmdbId', requireAuth, (req, res) => {
+    favouriteQueries.remove.run(req.user.id, parseInt(req.params.tmdbId));
+    res.json({ message: 'Removed from favourites' });
+});
+
+//check if movie is in favourites
+app.get('/api/favourites/:tmdbId', requireAuth, (req, res) => {
+    const row = favouriteQueries.exists.get(req.user.id, parseInt(req.params.tmdbId));
+    res.json({ isFavourite: !!row });
+});
+
+//lists routes
+
+//get all lists for user
+app.get('/api/lists', requireAuth, (req, res) => {
+    const lists = listQueries.getAll.all(req.user.id);
+    const listsWithMovies = lists.map(list => ({...list, movies: listMovieQueries.getByList.all(list.id),
+    }));
+    res.json(listsWithMovies);
+});
+
+//create new list
+app.post('/api/lists', requireAuth, (req, res) => {
+    const { name, description } = req.body;
+    if (!name) return res.status(400).json({ error: 'List name is required' });
+    const result = listQueries.create.run(req.user.id, name, description || '', 0);
+    res.status(201).json({ id: result.lastInsertRowid, name, description });
+});
+
+//update list
+app.put('/api/lists/:id', requireAuth, (req, res) => {
+    const { name, description } = req.body;
+    listQueries.update.run(name, description, parseInt(req.params.id), req.user.id);
+    res.json({ message: 'List updated' });
+});
+
+//delete list
+app.delete('/api/lists/:id', requireAuth, (req, res) => {
+    const list = listQueries.getById.get(parseInt(req.params.id), req.user.id);
+    if (list && list.is_watchlist) return res.status(403).json({ error: 'Cannot delete watchlist' });
+    listQueries.delete.run(parseInt(req.params.id), req.user.id);
+    res.json({ message: 'List deleted' });
+});
+
+//add movie to list
+app.post('/api/lists/:id/movies', requireAuth, (req, res) => {
+    const { tmdb_id, title, poster_path, overview, release_year } = req.body;
+    if (!tmdb_id || !title) return res.status(400).json({ error: 'tmdb_id and title are required' });
+
+    //verify list belongs to user
+    const list = listQueries.getById.get(parseInt(req.params.id), req.user.id);
+    if (!list) return res.status(404).json({ error: 'List not found' });
+
+    listMovieQueries.add.run(parseInt(req.params.id), tmdb_id, title, poster_path, overview, release_year);
+    res.status(201).json({ message: 'Movie added to list' });
+});
+
+//remove movie from list
+app.delete('/api/lists/:id/movies/:tmdbId', requireAuth, (req, res) => {
+    listMovieQueries.remove.run(parseInt(req.params.id), parseInt(req.params.tmdbId));
+    res.json({ message: 'Movie removed from list' });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`CosmoCinema server running at http://localhost:${PORT}`);
+});
