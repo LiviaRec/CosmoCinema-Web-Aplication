@@ -159,7 +159,6 @@ body {
     color: #a7ff04;
     text-decoration: none;
     font-size: 18px;
-    font-weight: bold;
 }
 
 section.picker-page {
@@ -222,17 +221,12 @@ section.picker-page {
     transition: 0.3s;
 }
 
-#pick-btn {
+.btn-primary {
     background: #5415b4;
     color: #a7ff04;
 }
 
-#surprise-btn {
-    background: #5415b4; 
-    color: #a7ff04;
-}
-
-#pick-btn:hover, #surprise-btn:hover {
+.btn-primary:hover {
     background: #37cc4e;
     color: #fbbf33;
 }

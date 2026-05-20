@@ -54,26 +54,32 @@
     </div>
 
     <div class="picker-buttons">
-        <button id="pick-btn">Pick a Movie</button>
-        <button id="surprise-btn">Surprise me!</button>
+        <!-- <button id="pick-btn">Pick a Movie</button> 
+        <button id="surprise-btn">Surprise me!</button> -->
+        <button class="btn-primary" onclick="pickMovie(false)">Pick a movie</button>
+        <button class="btn-primary" onclick="pickMovie(true)">Surprise me!</button>
     </div>
 
-    <div class="movie-container hidden" id="movieContainer">
-        <img id="moviePoster" src="" alt="Movie Poster" class="movie-poster">
+    <div class="loading" id="picker-loading" style="display:none">Finding your movie...</div>
 
-        <div class="movie-info">
-            <h2 id="movieTitle"></h2>
-            <p id="movieDescription" class="movie-description"></p>
-            <div class="movie-actions">
-                <button class="add-favorite-btn" id="addFavoriteBtn" title="Add to Favourites">
-                    <span class="heart-icon">&#10084;</span> 
-                </button>
-                <button class="add-list-btn" id="addListBtn" title="Add to List">
-                    <span class="list-icon">&#9776;</span>
-            </div>
-                
-        
+    <div class="picker-result" id="picker-result">
+        <img class="picker-poster" id="picker-poster" src="" alt="Movie Poster">
+        <div class="picker-movie-info">
+          <h2 class="picker-movie-title" id="picker-title"></h2>
+          <p class="picker-movie-desc" id="picker-desc"></p>
+          <div class="picker-actions">
+            <button class="icon-btn heart" id="picker-heart" onclick="toggleHeart()" title="Save to Favourites">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <button class="icon-btn bookmark" id="picker-bookmark" onclick="toggleBookmark()" title="Save to Watchlist">
+              <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
     </div>
 
-    <script src="picker.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/picker.js"></script>
 </body>
+</html>
