@@ -21,7 +21,7 @@ const DURATION_MAP = {
     'Long (> 120 min)' : { 'with_runtime.gte': 121 }
 };
 
-async function tmdbFetch(path, param = {}) {
+async function tmdbFetch(path, params = {}) {
     const url = new URL(`${TMDB_BASE}${path}`);
     url.searchParams.set('api_key', TMDB_KEY);
     url.searchParams.set('language', 'en-US');
@@ -41,7 +41,7 @@ async function getGenres() {
 async function discoverMovies({ genreId, mood, duration }) {
     const params = { sort_by: 'popularity.desc', 'vote_count.gte': 100, include_adult: false };
     
-    if (genreId) param.with_genres = genreId;
+    if (genreId) params.with_genres = genreId;
 
     if (mood && MOOD_MAP[mood]) {
         const moodParams = MOOD_MAP[mood];

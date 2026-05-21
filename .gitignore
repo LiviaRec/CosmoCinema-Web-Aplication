@@ -1,2 +1,8 @@
 backend/.env
 backend/database.js
+backend/node_modules/
+backend/package-lock.json`
+backend/cosmocinema.db
+backend/cosmocinema.db-wal
+backend/cosmocinema.db-shm
+

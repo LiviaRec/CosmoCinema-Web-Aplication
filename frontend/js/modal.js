@@ -1,4 +1,3 @@
-// Injects the auth modal into any page
 function injectAuthModal() {
   const modal = document.createElement('div');
   modal.id = 'auth-modal';
@@ -9,8 +8,7 @@ function injectAuthModal() {
       <h2 id="modal-title">Sign In</h2>
       <div id="auth-error" class="error-msg"></div>
       <input type="text" id="auth-username" placeholder="Username" style="display:none">
-      <input type="email" id="auth-email-login" placeholder="Email">
-      <input type="email" id="auth-email" placeholder="Email (confirm)" style="display:none">
+      <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
       <button class="btn-auth" id="btn-auth" onclick="handleAuth()">Sign In</button>
       <div class="switch-auth" id="switch-auth">

@@ -1,11 +1,10 @@
 let currentMovie = null;
 
-
 async function loadDropdowns() {
   try {
-    // Genres
     const genres = await apiFetch('/movies/genres');
     const genreSelect = document.getElementById('genre-select');
+    genreSelect.innerHTML = '<option value="">Genre</option>';
     genres.forEach(g => {
       const opt = document.createElement('option');
       opt.value = g.id;
@@ -13,9 +12,9 @@ async function loadDropdowns() {
       genreSelect.appendChild(opt);
     });
 
-    // Moods
     const moods = await apiFetch('/movies/moods');
     const moodSelect = document.getElementById('mood-select');
+    moodSelect.innerHTML = '<option value="">Mood</option>';
     moods.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m;
@@ -23,9 +22,9 @@ async function loadDropdowns() {
       moodSelect.appendChild(opt);
     });
 
-    // Durations
     const durations = await apiFetch('/movies/durations');
     const durationSelect = document.getElementById('duration-select');
+    durationSelect.innerHTML = '<option value="">Duration</option>';
     durations.forEach(d => {
       const opt = document.createElement('option');
       opt.value = d;
@@ -64,8 +63,7 @@ async function pickMovie(random) {
     document.getElementById('picker-title').textContent = `${movie.title} (${movie.release_year || '—'})`;
     document.getElementById('picker-desc').textContent = movie.overview;
 
-    // Check saved states if logged in
-    if (auth.isLoggedIn()) {
+    if (typeof auth !== 'undefined' && auth.isLoggedIn()) {
       try {
         const favRes = await apiFetch(`/favourites/${movie.tmdb_id}`);
         document.getElementById('picker-heart').classList.toggle('active', favRes.isFavourite);

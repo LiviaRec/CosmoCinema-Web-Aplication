@@ -221,7 +221,7 @@ section.picker-page {
     transition: 0.3s;
 }
 
-.btn-primary {
+.btn-primary, btn-get-started {
     background: #5415b4;
     color: #a7ff04;
 }
