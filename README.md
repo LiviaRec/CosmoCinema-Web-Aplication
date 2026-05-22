@@ -79,7 +79,7 @@ The token is stored in localStorage and sent as a Bearer token on every API requ
 
 ## Color Theme Inspiration
 
-<img src="https://i.pinimg.com/736x/66/3c/14/663c14db147e662e2cfc4991e09d1153.jpg" />
+<img src="https://i.pinimg.com/736x/66/3c/14/663c14db147e662e2cfc4991e09d1153.jpg" height="1000"/>
 
 
 ## Notes
