@@ -1,5 +1,5 @@
 
-# CosmoCinema - Movie Picker Web Application
+# <img src="https://i.imgur.com/a9HeiDw.gif" alt="stars" width="25"/> CosmoCinema - Movie Picker Web Application
 
 Thisis a movie picker web application using TMDB, it help you choose a movie based on the filters you want and saves the m to watchlists and favourites. Movie data is fetched from TMDB on the backend and forwarded to the frontend.
 
@@ -71,6 +71,11 @@ Passwords are hashed with bcrypt.
 On login or register the server returns a JWT token valid for 7 days. 
 
 The token is stored in localStorage and sent as a Bearer token on every API request that requires authentication.
+
+## Figma Prototype
+
+<img width="8201" height="1082" alt="CosmoCinemaCut API" src="https://github.com/user-attachments/assets/8017f170-a50b-4183-8495-3c8a0814755a" />
+
 
 ## Notes
 
