@@ -2,7 +2,7 @@ let currentMovie = null;
 let listPickerTimer = null;
 let listPickerSeconds = 10;
 
-// =================== LOAD GENRES FROM TMDB VIA BACKEND ===================
+
 async function loadGenres() {
     try {
         const genres = await apiFetch('/movies/genres');
@@ -39,7 +39,6 @@ async function loadGenres() {
     }
 }
 
-// =================== PICK MOVIE ===================
 async function pickMovie(random) {
     const loading = document.getElementById('picker-loading');
     const result  = document.getElementById('picker-result');
@@ -68,11 +67,9 @@ async function pickMovie(random) {
         document.getElementById('picker-title').textContent = `${movie.title} (${movie.release_year || '—'})`;
         document.getElementById('picker-desc').textContent  = movie.overview;
 
-        // Reset button states
         document.getElementById('picker-heart').classList.remove('active');
         document.getElementById('picker-bookmark').classList.remove('active');
 
-        // Check saved states if logged in
         if (auth.isLoggedIn()) {
             apiFetch(`/favourites/${movie.tmdb_id}`)
                 .then(res => {
@@ -95,7 +92,6 @@ async function pickMovie(random) {
     }
 }
 
-// =================== HEART (FAVOURITES) ===================
 async function toggleHeart() {
     if (!auth.isLoggedIn()) { openModal('signin'); return; }
     if (!currentMovie) return;
@@ -125,14 +121,11 @@ async function toggleHeart() {
     } catch (err) { showToast(err.message); }
 }
 
-// =================== BOOKMARK — opens list picker popup ===================
 async function toggleBookmark() {
     if (!auth.isLoggedIn()) { openModal('signin'); return; }
     if (!currentMovie) return;
 
-    // If already open, close it
-    const existing = document.getElementById('list-picker-popup');
-    if (existing) { closeListPicker(); return; }
+    if (document.getElementById('list-picker-inline')) { closeListPicker(); return; }
 
     try {
         const lists = await apiFetch('/lists');
@@ -140,76 +133,53 @@ async function toggleBookmark() {
     } catch (err) { showToast(err.message); }
 }
 
-// =================== LIST PICKER POPUP ===================
 function showListPicker(lists) {
-    closeListPicker(); // clear any existing
-
-    const popup = document.createElement('div');
-    popup.id = 'list-picker-popup';
-    popup.className = 'list-picker-popup';
+    closeListPicker();
 
     listPickerSeconds = 10;
 
-    popup.innerHTML = `
-        <div class="list-picker-header">
-            <span>Save to list</span>
-            <span class="list-picker-timer" id="list-picker-timer">${listPickerSeconds}s</span>
-            <button class="list-picker-close" onclick="closeListPicker()">✕</button>
-        </div>
-        <div class="list-picker-items" id="list-picker-items"></div>
-    `;
+    const container = document.createElement('div');
+    container.id = 'list-picker-inline';
+    container.className = 'list-picker-inline';
 
-    const items = popup.querySelector('#list-picker-items');
+    container.innerHTML = `
+        <div class="list-picker-inline-header">
+            <span>Save to list</span>
+            <span class="list-picker-inline-timer" id="list-picker-timer">${listPickerSeconds}s</span>
+            <button class="list-picker-inline-close" onclick="closeListPicker()">✕</button>
+        </div>
+    `;
 
     lists.forEach(list => {
         const alreadySaved = list.movies && list.movies.some(m => m.tmdb_id === currentMovie.tmdb_id);
         const item = document.createElement('button');
-        item.className = `list-picker-item ${alreadySaved ? 'saved' : ''}`;
+        item.className = `list-picker-inline-item ${alreadySaved ? 'saved' : ''}`;
         item.innerHTML = `
-            <span class="list-picker-name">${list.name}</span>
-            <span class="list-picker-count">${list.movies ? list.movies.length : 0} movies</span>
-            ${alreadySaved ? '<span class="list-picker-check">✓</span>' : ''}
+            <span>${list.name}</span>
+            <span class="list-picker-inline-count">${list.movies ? list.movies.length : 0}</span>
+            ${alreadySaved ? '<span class="list-picker-inline-check">✓</span>' : ''}
         `;
         item.onclick = () => saveToList(list, item, alreadySaved);
-        items.appendChild(item);
+        container.appendChild(item);
     });
 
-    // Anchor popup near the bookmark button
-    const btn = document.getElementById('picker-bookmark');
-    const rect = btn.getBoundingClientRect();
-    popup.style.position = 'fixed';
-    popup.style.top = (rect.bottom + 10) + 'px';
-    popup.style.left = rect.left + 'px';
+    const actions = document.querySelector('.picker-actions');
+    actions.parentNode.insertBefore(container, actions.nextSibling);
 
-    document.body.appendChild(popup);
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    // 10-second countdown
     listPickerTimer = setInterval(() => {
         listPickerSeconds--;
         const timerEl = document.getElementById('list-picker-timer');
         if (timerEl) timerEl.textContent = listPickerSeconds + 's';
         if (listPickerSeconds <= 0) closeListPicker();
     }, 1000);
-
-    // Close if clicking outside
-    setTimeout(() => {
-        document.addEventListener('click', outsideListPickerClick);
-    }, 50);
-}
-
-function outsideListPickerClick(e) {
-    const popup = document.getElementById('list-picker-popup');
-    const btn   = document.getElementById('picker-bookmark');
-    if (popup && !popup.contains(e.target) && e.target !== btn) {
-        closeListPicker();
-    }
 }
 
 function closeListPicker() {
     if (listPickerTimer) { clearInterval(listPickerTimer); listPickerTimer = null; }
-    const popup = document.getElementById('list-picker-popup');
-    if (popup) popup.remove();
-    document.removeEventListener('click', outsideListPickerClick);
+    const el = document.getElementById('list-picker-inline');
+    if (el) el.remove();
 }
 
 async function saveToList(list, itemEl, alreadySaved) {
@@ -240,7 +210,6 @@ async function saveToList(list, itemEl, alreadySaved) {
             showToast(`Added to ${list.name}!`);
         }
 
-        // Update bookmark button state — active if saved in any list
         try {
             const allLists = await apiFetch('/lists');
             const inAnyList = allLists.some(l => l.movies && l.movies.some(m => m.tmdb_id === currentMovie.tmdb_id));
@@ -250,5 +219,4 @@ async function saveToList(list, itemEl, alreadySaved) {
     } catch (err) { showToast(err.message); }
 }
 
-// =================== INIT ===================
 document.addEventListener('DOMContentLoaded', loadGenres);

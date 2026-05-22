@@ -12,7 +12,6 @@ const MOOD_MAP = { //all average rating over 6 to ensure quality
     'Emotional': {'with_genres': '18', 'vote_average.gte': 6}, // Drama
     'Funny': {'with_genres': '35', 'vote_average.gte': 6}, // Comedy
     'Scary': {'with_genres': '27', 'vote_average.gte': 6}, // Horror
-    'Musical': {'with_genres': '10402', 'vote_average.gte': 6}, // Musical
 
 };
 

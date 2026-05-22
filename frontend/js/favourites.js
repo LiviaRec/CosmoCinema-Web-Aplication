@@ -1,5 +1,7 @@
-let watchlistId = null;
+let allFavLists = [];
 let undoTimers = {};
+let favListPickerTimer = null;
+let favListPickerSeconds = 10;
 
 async function loadFavourites() {
     const grid = document.getElementById('fav-grid');
@@ -15,9 +17,7 @@ async function loadFavourites() {
             apiFetch('/lists'),
         ]);
 
-        const watchlist = lists.find(l => l.is_watchlist);
-        if (watchlist) watchlistId = watchlist.id;
-        const watchlistMovieIds = new Set((watchlist?.movies || []).map(m => m.tmdb_id));
+        allFavLists = lists;
 
         grid.innerHTML = '';
 
@@ -27,7 +27,7 @@ async function loadFavourites() {
         }
 
         favs.forEach(movie => {
-            const inWatchlist = watchlistMovieIds.has(movie.tmdb_id);
+            const inAnyList = lists.some(l => l.movies && l.movies.some(m => m.tmdb_id === movie.tmdb_id));
             const card = document.createElement('div');
             card.className = 'fav-card';
             card.id = `fav-card-${movie.tmdb_id}`;
@@ -40,9 +40,9 @@ async function loadFavourites() {
                     <button class="fav-btn heart" data-id="${movie.tmdb_id}" onclick="removeFav(${movie.tmdb_id})" title="Remove from Favourites">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
-                    <button class="fav-btn bookmark ${inWatchlist ? 'active' : ''}" data-id="${movie.tmdb_id}"
-                        onclick="toggleWatchlistFav(${movie.tmdb_id}, '${escAttr(movie.title)}', '${escAttr(movie.poster_path||'')}', '${escAttr(movie.overview||'')}', ${movie.release_year})"
-                        title="${inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                    <button class="fav-btn bookmark ${inAnyList ? 'active' : ''}" data-id="${movie.tmdb_id}"
+                        onclick="openFavListPicker(event, ${movie.tmdb_id}, '${escAttr(movie.title)}', '${escAttr(movie.poster_path||'')}', '${escAttr(movie.overview||'')}', ${movie.release_year})"
+                        title="Save to list">
                         <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                     </button>
                 </div>
@@ -62,11 +62,9 @@ function removeFav(tmdbId) {
     const card = document.getElementById(`fav-card-${tmdbId}`);
     if (!card) return;
 
-    // Dim card immediately
     card.style.opacity = '0.3';
     card.style.pointerEvents = 'none';
 
-    // Clear any existing undo for this movie
     if (undoTimers[tmdbId]) {
         clearTimeout(undoTimers[tmdbId].timeout);
         clearInterval(undoTimers[tmdbId].interval);
@@ -98,9 +96,7 @@ function removeFav(tmdbId) {
     const timeout = setTimeout(async () => {
         clearInterval(interval);
         toast.classList.remove('show');
-        try {
-            await apiFetch(`/favourites/${tmdbId}`, { method: 'DELETE' });
-        } catch (e) { console.error(e); }
+        try { await apiFetch(`/favourites/${tmdbId}`, { method: 'DELETE' }); } catch (e) { console.error(e); }
         delete undoTimers[tmdbId];
         if (card) card.remove();
         const grid = document.getElementById('fav-grid');
@@ -123,25 +119,102 @@ function undoRemove(tmdbId) {
     if (toast) toast.classList.remove('show');
 }
 
-async function toggleWatchlistFav(tmdbId, title, posterPath, overview, releaseYear) {
-    if (!watchlistId) return;
-    const btn = document.querySelector(`.fav-btn.bookmark[data-id="${tmdbId}"]`);
-    const inWatchlist = btn.classList.contains('active');
+let currentFavMovie = null;
+
+function openFavListPicker(event, tmdbId, title, posterPath, overview, releaseYear) {
+    currentFavMovie = { tmdb_id: tmdbId, title, poster_path: posterPath, overview, release_year: releaseYear };
+
+    const existing = document.getElementById(`fav-list-picker-${tmdbId}`);
+    if (existing) { closeFavListPicker(tmdbId); return; }
+
+    document.querySelectorAll('[id^="fav-list-picker-"]').forEach(el => el.remove());
+    if (favListPickerTimer) { clearInterval(favListPickerTimer); favListPickerTimer = null; }
+
+    showFavListPicker(allFavLists, tmdbId, event.currentTarget);
+}
+
+function showFavListPicker(lists, tmdbId, btn) {
+    favListPickerSeconds = 10;
+
+    const container = document.createElement('div');
+    container.id = `fav-list-picker-${tmdbId}`;
+    container.className = 'list-picker-inline';
+
+    container.innerHTML = `
+        <div class="list-picker-inline-header">
+            <span>Save to list</span>
+            <span class="list-picker-inline-timer" id="fav-list-picker-timer-${tmdbId}">${favListPickerSeconds}s</span>
+            <button class="list-picker-inline-close" onclick="closeFavListPicker(${tmdbId})">✕</button>
+        </div>
+    `;
+
+    lists.forEach(list => {
+        const alreadySaved = list.movies && list.movies.some(m => m.tmdb_id === tmdbId);
+        const item = document.createElement('button');
+        item.className = `list-picker-inline-item ${alreadySaved ? 'saved' : ''}`;
+        item.innerHTML = `
+            <span>${list.name}</span>
+            <span class="list-picker-inline-count">${list.movies ? list.movies.length : 0}</span>
+            ${alreadySaved ? '<span class="list-picker-inline-check">✓</span>' : ''}
+        `;
+        item.onclick = () => favSaveToList(list, item, alreadySaved, tmdbId);
+        container.appendChild(item);
+    });
+
+    const card = document.getElementById(`fav-card-${tmdbId}`);
+    card.appendChild(container);
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    favListPickerTimer = setInterval(() => {
+        favListPickerSeconds--;
+        const timerEl = document.getElementById(`fav-list-picker-timer-${tmdbId}`);
+        if (timerEl) timerEl.textContent = favListPickerSeconds + 's';
+        if (favListPickerSeconds <= 0) closeFavListPicker(tmdbId);
+    }, 1000);
+}
+
+function closeFavListPicker(tmdbId) {
+    if (favListPickerTimer) { clearInterval(favListPickerTimer); favListPickerTimer = null; }
+    const el = document.getElementById(`fav-list-picker-${tmdbId}`);
+    if (el) el.remove();
+}
+
+async function favSaveToList(list, itemEl, alreadySaved, tmdbId) {
     try {
-        if (inWatchlist) {
-            await apiFetch(`/lists/${watchlistId}/movies/${tmdbId}`, { method: 'DELETE' });
-            btn.classList.remove('active');
-            btn.title = 'Add to Watchlist';
-            showToast('Removed from Watchlist');
+        if (alreadySaved) {
+            await apiFetch(`/lists/${list.id}/movies/${tmdbId}`, { method: 'DELETE' });
+            itemEl.classList.remove('saved');
+            itemEl.querySelector('.list-picker-inline-check')?.remove();
+            showToast(`Removed from ${list.name}`);
         } else {
-            await apiFetch(`/lists/${watchlistId}/movies`, {
+            await apiFetch(`/lists/${list.id}/movies`, {
                 method: 'POST',
-                body: JSON.stringify({ tmdb_id: tmdbId, title, poster_path: posterPath, overview, release_year: releaseYear })
+                body: JSON.stringify({
+                    tmdb_id:      currentFavMovie.tmdb_id,
+                    title:        currentFavMovie.title,
+                    poster_path:  currentFavMovie.poster_path,
+                    overview:     currentFavMovie.overview,
+                    release_year: currentFavMovie.release_year,
+                })
             });
-            btn.classList.add('active');
-            btn.title = 'Remove from Watchlist';
-            showToast('Added to Watchlist!');
+            itemEl.classList.add('saved');
+            if (!itemEl.querySelector('.list-picker-inline-check')) {
+                const check = document.createElement('span');
+                check.className = 'list-picker-inline-check';
+                check.textContent = '✓';
+                itemEl.appendChild(check);
+            }
+            showToast(`Added to ${list.name}!`);
         }
+
+        try {
+            const updatedLists = await apiFetch('/lists');
+            allFavLists = updatedLists;
+            const inAnyList = updatedLists.some(l => l.movies && l.movies.some(m => m.tmdb_id === tmdbId));
+            const bookmarkBtn = document.querySelector(`.fav-btn.bookmark[data-id="${tmdbId}"]`);
+            if (bookmarkBtn) bookmarkBtn.classList.toggle('active', inAnyList);
+        } catch {}
+
     } catch (err) { showToast(err.message); }
 }
 
