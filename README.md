@@ -1,5 +1,5 @@
 
-### CosmoCinema - Movie Picker Web Application
+# CosmoCinema - Movie Picker Web Application
 
 Thisis a movie picker web application using TMDB, it help you choose a movie based on the filters you want and saves the m to watchlists and favourites. Movie data is fetched from TMDB on the backend and forwarded to the frontend.
 
@@ -7,12 +7,12 @@ Thisis a movie picker web application using TMDB, it help you choose a movie bas
 ## Pages
 
 
-# Home (index.html)
+### Home (index.html)
 
 The landing/hero page has a centered navbar with links to all pages and a Sign In button. CosmoCinema title with animated starfield background and a "Get Started" button navigates to the Picker.
 
 
-# Picker (picker.html)
+### Picker (picker.html)
 
 The main feature of the web application. It has three dropdown filters: 
 - Genre (loaded from TMDB)
@@ -30,7 +30,7 @@ Two icon buttons let the user save the movie to Favourites (heart) or Watchlist 
 Both icons update visually when active. If the user is not signed in, clicking either button opens the sign-in modal.
 
 
-# Favourites (favourites.html)
+### Favourites (favourites.html)
 
 Displays all movies saved as favourites in a 5-column grid. Each card shows:
 
@@ -40,7 +40,7 @@ Displays all movies saved as favourites in a 5-column grid. Each card shows:
 - A bookmark button -> toggles whether the movie is also saved to the Watchlist. Turns green when active.
 
 
-# Lists (lists.html)
+### Lists (lists.html)
 
 Displays all the user's lists as rows. The Watchlist is always pinned at the top. Each row shows:
 
@@ -50,7 +50,7 @@ Displays all the user's lists as rows. The Watchlist is always pinned at the top
 - Custom lists have a red "Delete list" button
 
 
-# Database 
+## Database 
 
 SQLite database stored at backend/cosmocinema.db. 
 
@@ -64,7 +64,7 @@ lists — id, user_id, name, description, is_watchlist (1 = Watchlist, always cr
 
 list_movies — id, list_id, tmdb_id, title, poster_path, overview, release_year, added_at
 
-# Authentication
+## Authentication
 
 Passwords are hashed with bcrypt. 
 
@@ -72,7 +72,7 @@ On login or register the server returns a JWT token valid for 7 days.
 
 The token is stored in localStorage and sent as a Bearer token on every API request that requires authentication.
 
-# Notes
+## Notes
 
 node_modules/ is in .gitignore — run npm install after cloning
 
