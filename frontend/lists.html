@@ -21,11 +21,25 @@
         </ul>
     </nav>
 
+     <div class="lists-toolbar">
+        <button class="btn-create-list" onclick="openCreateList()">+ New List</button>
+    </div>
+ 
     <main>
         <div id="lists-container">
-            <div class="loading" style="padding:40px;position:relative;z-index:1">Loading...</div>
+            <div class="loading">Loading...</div>
         </div>
     </main>
+ 
+    <div class="modal-overlay" id="create-list-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeCreateList()">✕</button>
+            <h2>New List</h2>
+            <input type="text" id="new-list-name" placeholder="List name" maxlength="50">
+            <textarea id="new-list-desc" placeholder="Description (optional)" rows="3"></textarea>
+            <button class="btn-auth" onclick="submitCreateList()">Create List</button>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
     <script src="js/modal.js"></script>
