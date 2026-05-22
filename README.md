@@ -77,6 +77,11 @@ The token is stored in localStorage and sent as a Bearer token on every API requ
 <img width="8201" height="1082" alt="CosmoCinemaCut API" src="https://github.com/user-attachments/assets/8017f170-a50b-4183-8495-3c8a0814755a" />
 
 
+## Color Theme Inspiration
+
+<img src="https://i.pinimg.com/736x/66/3c/14/663c14db147e662e2cfc4991e09d1153.jpg" />
+
+
 ## Notes
 
 node_modules/ is in .gitignore — run npm install after cloning
