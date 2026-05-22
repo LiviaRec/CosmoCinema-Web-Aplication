@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
-const MOOD_MAP = { //all averate rating over 7 to ensure quality
+const MOOD_MAP = { //all average rating over 6 to ensure quality
     'Lighthearted': {'with_genres': '35,10751', 'vote_average.gte': 6}, // Comedy, Romance
     'Thought-Provoking': {'with_genres': '878,9648', 'vote_average.gte': 6}, // Sci fi, Mystery
     'Intense': {'with_genres': '28,53', 'vote_average.gte': 6}, // Action, Thriller
@@ -12,6 +12,7 @@ const MOOD_MAP = { //all averate rating over 7 to ensure quality
     'Emotional': {'with_genres': '18', 'vote_average.gte': 6}, // Drama
     'Funny': {'with_genres': '35', 'vote_average.gte': 6}, // Comedy
     'Scary': {'with_genres': '27', 'vote_average.gte': 6}, // Horror
+    'Musical': {'with_genres': '10402', 'vote_average.gte': 6}, // Musical
 
 };
 

@@ -35,7 +35,7 @@ app.get('/api/movies/genres', async (req, res) => {
 
 
 app.get('/api/movies/moods', (req, res) => {
-    res.json([ 'Lighthearted', 'Thought-Provoking', 'Intense', 'Relaxing', 'Nostalgic', 'Emotional', 'Funny', 'Scary']);
+    res.json([ 'Lighthearted', 'Thought-Provoking', 'Intense', 'Relaxing', 'Nostalgic', 'Emotional', 'Funny', 'Scary', 'Musical']);
 });
 
 app.get('/api/movies/durations', (req, res) => {
