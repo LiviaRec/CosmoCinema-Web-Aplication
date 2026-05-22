@@ -4,14 +4,14 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
 const MOOD_MAP = { //all averate rating over 7 to ensure quality
-    'Lighthearted': {'with_genres': '35,10751', 'vote_average.gte': 7}, // Comedy, Romance
-    'Thought-Provoking': {'with_genres': '878,9648', 'vote_average.gte': 7}, // Sci fi, Mystery
-    'Intense': {'with_genres': '28,53', 'vote_average.gte': 7}, // Action, Thriller
-    'Relaxing': {'with_genres': '16,10751', 'vote_average.gte': 7}, // Animation, Family
-    'Nostalgic': {'primary_release_date.lte': '2005-01-01', 'vote_average.gte': 7}, // Nostalgic
-    'Emotional': {'with_genres': '18', 'vote_average.gte': 7}, // Drama
-    'Funny': {'with_genres': '35', 'vote_average.gte': 7}, // Comedy
-    'Scary': {'with_genres': '27', 'vote_average.gte': 7}, // Horror
+    'Lighthearted': {'with_genres': '35,10751', 'vote_average.gte': 6}, // Comedy, Romance
+    'Thought-Provoking': {'with_genres': '878,9648', 'vote_average.gte': 6}, // Sci fi, Mystery
+    'Intense': {'with_genres': '28,53', 'vote_average.gte': 6}, // Action, Thriller
+    'Relaxing': {'with_genres': '16,10751', 'vote_average.gte': 6}, // Animation, Family
+    'Nostalgic': {'primary_release_date.lte': '2005-01-01', 'vote_average.gte': 6}, // Nostalgic
+    'Emotional': {'with_genres': '18', 'vote_average.gte': 6}, // Drama
+    'Funny': {'with_genres': '35', 'vote_average.gte': 6}, // Comedy
+    'Scary': {'with_genres': '27', 'vote_average.gte': 6}, // Horror
 
 };
 

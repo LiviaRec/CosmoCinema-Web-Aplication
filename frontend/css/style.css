@@ -273,7 +273,7 @@ section.picker-page {
   min-width: 230px;
   height: 340px;
   object-fit: cover;
-  border: 2px solid var(--lime);
+  border: 2px solid var(--white);
   border-radius: 10px;
   background: #1a1a2e;
 }
