@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 console.log('__dirname:', __dirname);
-app.use(express.static(path.join(process.cwd(), 'frontend')));
+app.use(express.static('/app/frontend'));
 
 app.post('/api/auth/register', register);
 app.post('/api/auth/login', login);
@@ -183,7 +183,7 @@ app.delete('/api/lists/:id/movies/:tmdb_id', requireAuth, async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'frontend', 'index.html'));
+    res.sendFile('/app/frontend/index.html');
 });
 
 app.listen(PORT, () => {
