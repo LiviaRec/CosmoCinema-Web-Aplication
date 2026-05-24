@@ -1,5 +1,4 @@
 backend/.env
-backend/database.js
 backend/node_modules/
 backend/package-lock.json`
 backend/cosmocinema.db
