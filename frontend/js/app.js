@@ -1,4 +1,4 @@
-window.API_URL = 'http://localhost:3000/api';
+window.API_URL = 'http://cosmocinema-web-aplication-production.up.railway.app/api';
 
 const auth = {
     token: localStorage.getItem('cosmo_token'),
