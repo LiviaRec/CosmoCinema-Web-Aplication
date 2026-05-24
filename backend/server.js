@@ -9,6 +9,8 @@ const { getGenres, discoverMovies, getRandomMovie, formatMovie } = require('./tm
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+console.log('cwd:', process.cwd());
+console.log('frontend path:', path.join(process.cwd(), 'frontend'));
 
 app.use(cors());
 app.use(express.json());
