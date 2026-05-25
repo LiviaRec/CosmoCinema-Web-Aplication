@@ -1,6 +1,8 @@
 
 # <img src="https://i.imgur.com/a9HeiDw.gif" alt="stars" width="25"/> CosmoCinema - Movie Picker Web Application
 
+https://cosmocinema.liviarec.dev/
+
 Thisis a movie picker web application using TMDB, it help you choose a movie based on the filters you want and saves the m to watchlists and favourites. Movie data is fetched from TMDB on the backend and forwarded to the frontend.
 
 
