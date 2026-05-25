@@ -1,5 +1,8 @@
-window.API_URL = '/api';
+window.API_URL = '/api'; //deployment override
 
+
+// manage auth over all pages
+//localstorage used to save dta over over refrech page
 const auth = {
     token: localStorage.getItem('cosmo_token'),
     user: JSON.parse(localStorage.getItem('cosmo_user') || 'null'),
@@ -17,13 +20,14 @@ const auth = {
         localStorage.removeItem('cosmo_token');
         localStorage.removeItem('cosmo_user');
     },
-
+    // check if user is logged in for fav, list pges
     isLoggedIn() { return !!this.token; }
 };
 
+// wrapper for fetch to handle auth and errors in one place
 async function apiFetch(path, options = {}) {
     const headers = { 'Content-Type': 'application/json' };
-    if (auth.token) headers['Authorization'] = `Bearer ${auth.token}`;
+    if (auth.token) headers['Authorization'] = `Bearer ${auth.token}`; //standard format for JWT authentication
     const res = await fetch(`${window.API_URL}${path}`, { ...options, headers });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -44,6 +48,8 @@ function showToast(msg) {
     toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+
+// for user avatar , future imprememntaion , throw error still
 function updateNavAvatar() {
     document.querySelectorAll('.user-avatar').forEach(el => {
         if (auth.isLoggedIn()) {
@@ -114,6 +120,7 @@ function updateModalUI() {
     }
 }
 
+// handle both sign in and sign up with same function
 async function handleAuth() {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value.trim();

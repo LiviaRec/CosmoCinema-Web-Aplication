@@ -7,13 +7,15 @@ const db = new sqlite3.Database(dbPath, (err) => {
     else console.log('Connected to SQLite database');
 });
 
+// wrapper functions to use async/await with sqlite3
 const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
     db.run(sql, params, function(err) {
-        if (err) reject(err);
-        else resolve({ lastInsertRowid: this.lastID, changes: this.changes });
+        if (err) reject(err);         
+        else resolve({ lastInsertRowid: this.lastID, changes: this.changes }); // this.lastID gives id of last inserted row, this.changes gives number of rows affected
     });
 });
 
+// for select queries dbGet
 const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
     db.get(sql, params, (err, row) => {
         if (err) reject(err);
@@ -21,6 +23,7 @@ const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
     });
 });
 
+// dbAll for multiple rows
 const dbAll = (sql, params = []) => new Promise((resolve, reject) => {
     db.all(sql, params, (err, rows) => {
         if (err) reject(err);
@@ -149,6 +152,7 @@ const listQueries = {
             [id, userId]
         )
     },
+    // create watchlist if not existent
     ensureWatchlist: {
         run: (userId1, userId2) => dbRun(
             `INSERT OR IGNORE INTO lists (user_id, name, description, is_watchlist)

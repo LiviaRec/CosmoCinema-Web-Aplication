@@ -38,7 +38,7 @@ async function getGenres() {
     return data.genres;
 }
 
-async function discoverMovies({ genreId, mood, duration }) {
+async function discoverMovies({ genreId, mood, duration }) { // 100 vo te for quality, 20 pages for variety
     const params = { sort_by: 'popularity.desc', 'vote_count.gte': 100, include_adult: false };
     
     if (genreId) params.with_genres = genreId;
@@ -73,6 +73,8 @@ async function getMovieDetails(tmdbId) {
     return tmdbFetch(`/movie/${tmdbId}`);
 }
 
+// formats TMDB movie object to only include necessary fields for frontend and favourites
+// also formats poster path to full URL and release date to year only (parseint)
 function formatMovie(movie) {
     return {
         tmdb_id: movie.id,

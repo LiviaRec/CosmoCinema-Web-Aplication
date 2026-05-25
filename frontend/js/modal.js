@@ -1,3 +1,4 @@
+// auth modal for sign in and sign up, injected on page
 function injectAuthModal() {
   const modal = document.createElement('div');
   modal.id = 'auth-modal';

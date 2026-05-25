@@ -3,10 +3,12 @@ const bcrypt = require('bcryptjs');
 const {userQueries, listQueries} = require('./database');
 const JWT_SECRET = process.env.JWT_SECRET
 
+//creates json web token , expires in 7 days
 function generateToken(user) {
     return jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn : '7d'});
 }
 
+//middleware  , next() if token valid, else 401 error
 function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -32,7 +34,7 @@ async function register(req, res) {
     if (password.length < 6)
         return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-    try {
+    try { //hash password, create user, create watchlist, generate token
         const hashed = await bcrypt.hash(password, 10);
         const result = await userQueries.create.run(username, email, hashed);
         const userRow = await userQueries.findByEmail.get(email);
@@ -55,12 +57,13 @@ async function register(req, res) {
   }
 }
 
+
 async function login(req, res) {
     const { email, password } = req.body;
 
     if (!email || !password)
         return res.status(400).json({ error: 'Email and password are required' });
-    try {
+    try { //find user, compare password, ensure watchlist, generate token
         const user = await userQueries.findByEmail.get(email);
         if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 

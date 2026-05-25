@@ -71,6 +71,7 @@ app.get('/api/movies/surprise', async (req, res) => {
     }
 });
 
+// all favourites for specific user id token
 app.get('/api/favourites', requireAuth, async (req, res) => {
     try {
         const favs = await favouriteQueries.getAll.all(req.user.id);
@@ -79,7 +80,7 @@ app.get('/api/favourites', requireAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to get favourites' });
     }
 });
-
+//save
 app.post('/api/favourites', requireAuth, async (req, res) => {
     const { tmdb_id, title, poster_path, overview, release_year } = req.body;
     if (!tmdb_id || !title) return res.status(400).json({ error: 'tmdb_id and title are required' });
@@ -100,6 +101,7 @@ app.delete('/api/favourites/:tmdbId', requireAuth, async (req, res) => {
     }
 });
 
+// check if a movie is in favourites ( to show red heart)
 app.get('/api/favourites/:tmdbId', requireAuth, async (req, res) => {
     try {
         const row = await favouriteQueries.exists.get(req.user.id, parseInt(req.params.tmdbId));
@@ -110,7 +112,7 @@ app.get('/api/favourites/:tmdbId', requireAuth, async (req, res) => {
 });
 
 
-
+// return all lists for specific user id
 app.get('/api/lists', requireAuth, async (req, res) => {
     try {
         const lists = await listQueries.getAll.all(req.user.id);
@@ -126,6 +128,7 @@ app.get('/api/lists', requireAuth, async (req, res) => {
     }
 });
 
+ //+ new list
 app.post('/api/lists', requireAuth, async (req, res) => {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ error: 'List name is required' });
@@ -137,6 +140,7 @@ app.post('/api/lists', requireAuth, async (req, res) => {
     }
 });
 
+// update list name or description
 app.put('/api/lists/:id', requireAuth, async (req, res) => {
     const { name, description } = req.body;
     try {
@@ -147,6 +151,7 @@ app.put('/api/lists/:id', requireAuth, async (req, res) => {
     }
 });
 
+//delete list, but not watchlist
 app.delete('/api/lists/:id', requireAuth, async (req, res) => {
     try {
         const list = await listQueries.getById.get(parseInt(req.params.id), req.user.id);
@@ -158,6 +163,7 @@ app.delete('/api/lists/:id', requireAuth, async (req, res) => {
     }
 });
 
+// add movie to specific list
 app.post('/api/lists/:id/movies', requireAuth, async (req, res) => {
     const { tmdb_id, title, poster_path, overview, release_year } = req.body;
     if (!tmdb_id || !title) return res.status(400).json({ error: 'tmdb_id and title are required' });
@@ -171,6 +177,7 @@ app.post('/api/lists/:id/movies', requireAuth, async (req, res) => {
     }
 });
 
+// delete movie from specific list, check if belongs to user
 app.delete('/api/lists/:id/movies/:tmdb_id', requireAuth, async (req, res) => {
     try {
         const list = await listQueries.getById.get(parseInt(req.params.id), req.user.id);
@@ -182,6 +189,7 @@ app.delete('/api/lists/:id/movies/:tmdb_id', requireAuth, async (req, res) => {
     }
 });
 
+/// catches every url and return indexhtml for handle routing
 app.get('*', (req, res) => {
     res.sendFile('/app/frontend/index.html');
 });
