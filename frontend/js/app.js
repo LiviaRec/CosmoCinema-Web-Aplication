@@ -131,6 +131,13 @@ async function handleAuth() {
         return;
     }
 
+     //validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        setAuthError('Please enter a valid email address.');
+        return;
+    }
+
     try {
         if (authMode === 'signin') {
             const data = await apiFetch('/auth/login', {
@@ -141,6 +148,12 @@ async function handleAuth() {
         } else {
             const username = document.getElementById('auth-username').value.trim();
             if (!username) { setAuthError('Username is required.'); return; }
+ 
+            if (password.length < 6) {
+                setAuthError('Password must be at least 6 characters.');
+                return;
+            }
+ 
             const data = await apiFetch('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({ username, email, password })

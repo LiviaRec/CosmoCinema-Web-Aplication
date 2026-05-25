@@ -30,7 +30,20 @@ async function register(req, res) {
 
     if (!username || !email || !password)
         return res.status(400).json({ error: 'All fields are required' });
-
+ 
+    // email format validation 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email))
+        return res.status(400).json({ error: 'Invalid email address' });
+ 
+    // username rules
+    if (username.length < 3 || username.length > 30)
+        return res.status(400).json({ error: 'Username must be between 3 and 30 characters' });
+ 
+    if (!/^[a-zA-Z0-9_]+$/.test(username))
+        return res.status(400).json({ error: 'Username can only contain letters, numbers and underscores' });
+ 
+    // password strength
     if (password.length < 6)
         return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
