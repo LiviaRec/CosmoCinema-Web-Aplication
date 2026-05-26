@@ -1,31 +1,29 @@
-let currentMovie   = null;
+let currentMovie      = null;
 let listPickerTimer   = null;
 let listPickerSeconds = 10;
 
-// =================== BROWSE STATE ===================
 const browse = {
-    active:      false,   // are we in browse mode?
-    batch:       [],      // current batch of movies
-    index:       0,       // position in current batch
-    page:        1,       // current TMDB page
-    minRating:   7,       // current minimum rating
-    totalPages:  1,
-    exhausted:   false,   // no more movies left
-    filters:     {},      // { genreId, mood, duration }
+    active:     false,
+    batch:      [],
+    index:      0,
+    page:       1,
+    minRating:  7,
+    totalPages: 1,
+    exhausted:  false,
+    filters:    {},
 
     reset() {
-        this.active    = false;
-        this.batch     = [];
-        this.index     = 0;
-        this.page      = 1;
-        this.minRating = 7;
+        this.active     = false;
+        this.batch      = [];
+        this.index      = 0;
+        this.page       = 1;
+        this.minRating  = 7;
         this.totalPages = 1;
-        this.exhausted = false;
-        this.filters   = {};
+        this.exhausted  = false;
+        this.filters    = {};
     }
 };
 
-// =================== LOAD DROPDOWNS ===================
 async function loadGenres() {
     try {
         const genres = await apiFetch('/movies/genres');
@@ -62,7 +60,6 @@ async function loadGenres() {
     }
 }
 
-// =================== PICK MOVIE (initial) ===================
 async function pickMovie(random) {
     const loading = document.getElementById('picker-loading');
     const result  = document.getElementById('picker-result');
@@ -72,36 +69,31 @@ async function pickMovie(random) {
     browse.reset();
 
     try {
-        let movie;
         if (random) {
-            movie = await apiFetch('/movies/surprise');
+            const movie = await apiFetch('/movies/surprise');
             displayMovie(movie);
-            // No browse mode for surprise — it's purely random
             hideBrowseNav();
         } else {
-            // Enter browse mode with filters
-            const genreId  = document.getElementById('genre-select').value;
-            const mood     = document.getElementById('mood-select').value;
-            const duration = document.getElementById('duration-select').value;
-
-            browse.filters = { genreId, mood, duration };
-            browse.active  = true;
-
+            browse.filters = {
+                genreId:  document.getElementById('genre-select').value,
+                mood:     document.getElementById('mood-select').value,
+                duration: document.getElementById('duration-select').value,
+            };
+            browse.active = true;
             await loadBrowseBatch();
         }
     } catch {
-        showToast("The stars haven't aligned for that combination. Try different filters!");
+        showToast("Couldn't reach the stars right now. Try again!");
         loading.style.display = 'none';
     }
 }
 
-// =================== LOAD A BATCH ===================
 async function loadBrowseBatch() {
-    const loading = document.getElementById('picker-loading');
-    loading.style.display = 'block';
+    document.getElementById('picker-loading').style.display = 'block';
 
     const { genreId, mood, duration } = browse.filters;
     const params = new URLSearchParams();
+
     if (genreId)  params.set('genreId',  genreId);
     if (mood)     params.set('mood',     mood);
     if (duration) params.set('duration', duration);
@@ -110,49 +102,48 @@ async function loadBrowseBatch() {
 
     try {
         const data = await apiFetch(`/movies/browse?${params.toString()}`);
-        browse.batch      = data.movies;
-        browse.totalPages = data.totalPages;
-        loading.style.display = 'none';
+        browse.batch      = data.movies || [];
+        browse.totalPages = data.totalPages || 1;
+        document.getElementById('picker-loading').style.display = 'none';
 
         if (!browse.batch.length) {
-            tryLowerRating();
+            await tryLowerRating();
             return;
         }
 
         displayMovie(browse.batch[browse.index]);
         updateBrowseNav();
     } catch {
-        loading.style.display = 'none';
-        tryLowerRating();
+        document.getElementById('picker-loading').style.display = 'none';
+        await tryLowerRating();
     }
 }
 
-// =================== DROP RATING & RETRY ===================
 async function tryLowerRating() {
-    // Try next page first
     if (browse.page < browse.totalPages) {
         browse.page++;
+        browse.index = 0;
         await loadBrowseBatch();
         return;
     }
 
-    // Drop rating by 0.5
-    browse.minRating = Math.round((browse.minRating - 0.5) * 10) / 10;
-    browse.page = 1;
+    const newRating = browse.minRating - 1;
 
-    if (browse.minRating < 4) {
-        // Truly exhausted
+    if (newRating < 5) {
         browse.exhausted = true;
         showToast('No more movies found for these filters.');
         updateBrowseNav();
         return;
     }
 
-    showToast(`Expanding search… showing movies rated ${browse.minRating}+`);
+    browse.minRating = newRating;
+    browse.page      = 1;
+    browse.index     = 0;
+    browse.batch     = [];
+    showToast(`Expanding search — showing movies rated ${browse.minRating}+`);
     await loadBrowseBatch();
 }
 
-// =================== BROWSE NAVIGATION ===================
 function browseNext() {
     if (!browse.active || browse.exhausted) return;
     closeListPicker();
@@ -162,10 +153,9 @@ function browseNext() {
         displayMovie(browse.batch[browse.index]);
         updateBrowseNav();
     } else {
-        // End of current batch — fetch next page or lower rating
-        browse.page < browse.totalPages ? browse.page++ : null;
         browse.index = 0;
         browse.batch = [];
+        if (browse.page < browse.totalPages) browse.page++;
         loadBrowseBatch();
     }
 }
@@ -178,31 +168,27 @@ function browsePrev() {
     updateBrowseNav();
 }
 
-// =================== UPDATE NAV UI ===================
 function updateBrowseNav() {
     const nav = document.getElementById('browse-nav');
     if (!nav) return;
-
     if (!browse.active) { nav.style.display = 'none'; return; }
 
     nav.style.display = 'flex';
 
-    const prevBtn  = document.getElementById('browse-prev');
-    const nextBtn  = document.getElementById('browse-next');
-    const counter  = document.getElementById('browse-counter');
-    const ratingEl = document.getElementById('browse-rating');
-
-    prevBtn.disabled = browse.index === 0;
-    nextBtn.disabled = browse.exhausted;
+    document.getElementById('browse-prev').disabled = browse.index === 0;
+    document.getElementById('browse-next').disabled = browse.exhausted;
 
     const total = browse.batch.length;
-    counter.textContent = total ? `${browse.index + 1} / ${total}` : '';
-    ratingEl.textContent = browse.minRating < 7
-        ? `Rating ≥ ${browse.minRating}`
-        : '';
-    ratingEl.style.color = browse.minRating < 6 ? '#ff6b35'
-        : browse.minRating < 7 ? '#f6c90e'
-        : 'var(--lime)';
+    document.getElementById('browse-counter').textContent = total ? `${browse.index + 1} / ${total}` : '';
+
+    const ratingEl = document.getElementById('browse-rating');
+    if (browse.minRating < 7) {
+        ratingEl.textContent = `Rating ≥ ${browse.minRating}`;
+        ratingEl.style.color = browse.minRating < 6 ? '#ff6b35' : '#f6c90e';
+    } else {
+        ratingEl.textContent = 'Top rated';
+        ratingEl.style.color = 'var(--lime)';
+    }
 }
 
 function hideBrowseNav() {
@@ -210,27 +196,20 @@ function hideBrowseNav() {
     if (nav) nav.style.display = 'none';
 }
 
-// =================== DISPLAY MOVIE ===================
 function displayMovie(movie) {
     currentMovie = movie;
-    const result = document.getElementById('picker-result');
 
     document.getElementById('picker-poster').src = movie.poster_path || '';
     document.getElementById('picker-poster').alt = movie.title;
     document.getElementById('picker-title').textContent = `${movie.title} (${movie.release_year || '—'})`;
     document.getElementById('picker-desc').textContent  = movie.overview;
-
-    // Reset button states
     document.getElementById('picker-heart').classList.remove('active');
     document.getElementById('picker-bookmark').classList.remove('active');
 
-    // Check saved states if logged in
     if (auth.isLoggedIn()) {
         apiFetch(`/favourites/${movie.tmdb_id}`)
-            .then(res => {
-                if (res.isFavourite) document.getElementById('picker-heart').classList.add('active');
-            }).catch(() => {});
-
+            .then(res => { if (res.isFavourite) document.getElementById('picker-heart').classList.add('active'); })
+            .catch(() => {});
         apiFetch('/lists')
             .then(lists => {
                 const inAnyList = lists.some(l => l.movies && l.movies.some(m => m.tmdb_id === movie.tmdb_id));
@@ -238,19 +217,16 @@ function displayMovie(movie) {
             }).catch(() => {});
     }
 
-    result.classList.add('visible');
-    result.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('picker-result').classList.add('visible');
+    document.getElementById('picker-result').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('picker-loading').style.display = 'none';
 }
 
-// =================== HEART ===================
 async function toggleHeart() {
     if (!auth.isLoggedIn()) { openModal('signin'); return; }
     if (!currentMovie) return;
-
     const btn      = document.getElementById('picker-heart');
     const isActive = btn.classList.contains('active');
-
     try {
         if (isActive) {
             await apiFetch(`/favourites/${currentMovie.tmdb_id}`, { method: 'DELETE' });
@@ -260,10 +236,8 @@ async function toggleHeart() {
             await apiFetch('/favourites', {
                 method: 'POST',
                 body: JSON.stringify({
-                    tmdb_id:      currentMovie.tmdb_id,
-                    title:        currentMovie.title,
-                    poster_path:  currentMovie.poster_path,
-                    overview:     currentMovie.overview,
+                    tmdb_id: currentMovie.tmdb_id, title: currentMovie.title,
+                    poster_path: currentMovie.poster_path, overview: currentMovie.overview,
                     release_year: currentMovie.release_year,
                 })
             });
@@ -273,13 +247,10 @@ async function toggleHeart() {
     } catch (err) { showToast(err.message); }
 }
 
-// =================== BOOKMARK — inline list picker ===================
 async function toggleBookmark() {
     if (!auth.isLoggedIn()) { openModal('signin'); return; }
     if (!currentMovie) return;
-
     if (document.getElementById('list-picker-inline')) { closeListPicker(); return; }
-
     try {
         const lists = await apiFetch('/lists');
         showListPicker(lists);
@@ -293,7 +264,6 @@ function showListPicker(lists) {
     const container = document.createElement('div');
     container.id = 'list-picker-inline';
     container.className = 'list-picker-inline';
-
     container.innerHTML = `
         <div class="list-picker-inline-header">
             <span>Save to list</span>
@@ -344,10 +314,8 @@ async function saveToList(list, itemEl, alreadySaved) {
             await apiFetch(`/lists/${list.id}/movies`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    tmdb_id:      currentMovie.tmdb_id,
-                    title:        currentMovie.title,
-                    poster_path:  currentMovie.poster_path,
-                    overview:     currentMovie.overview,
+                    tmdb_id: currentMovie.tmdb_id, title: currentMovie.title,
+                    poster_path: currentMovie.poster_path, overview: currentMovie.overview,
                     release_year: currentMovie.release_year,
                 })
             });
@@ -360,13 +328,11 @@ async function saveToList(list, itemEl, alreadySaved) {
             }
             showToast(`Added to ${list.name}!`);
         }
-
         try {
             const allLists = await apiFetch('/lists');
             const inAnyList = allLists.some(l => l.movies && l.movies.some(m => m.tmdb_id === currentMovie.tmdb_id));
             document.getElementById('picker-bookmark').classList.toggle('active', inAnyList);
         } catch {}
-
     } catch (err) { showToast(err.message); }
 }
 
