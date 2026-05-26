@@ -91,6 +91,12 @@ async function pickMovie(random) {
 async function loadBrowseBatch() {
     document.getElementById('picker-loading').style.display = 'block';
 
+    // disable nav buttons while loading
+    const prevBtn = document.getElementById('browse-prev');
+    const nextBtn = document.getElementById('browse-next');
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+
     const { genreId, mood, duration } = browse.filters;
     const params = new URLSearchParams();
 
@@ -115,8 +121,7 @@ async function loadBrowseBatch() {
         updateBrowseNav();
     } catch {
         document.getElementById('picker-loading').style.display = 'none';
-        console.error('Browse fetch failed:', err);
-        showToast("Couldn't reach the stars right now. Try again!");
+        await tryLowerRating();
     }
 }
 
@@ -200,8 +205,29 @@ function hideBrowseNav() {
 function displayMovie(movie) {
     currentMovie = movie;
 
-    document.getElementById('picker-poster').src = movie.poster_path || '';
-    document.getElementById('picker-poster').alt = movie.title;
+    const poster = document.getElementById('picker-poster');
+
+    // fade out, swap src, fade in once loaded
+    poster.style.transition = 'opacity 0.2s';
+    poster.style.opacity = '0';
+
+    const newImg = new Image();
+    newImg.src = movie.poster_path || '';
+    newImg.onload = () => {
+        poster.src = newImg.src;
+        poster.style.opacity = '1';
+    };
+    newImg.onerror = () => {
+        poster.src = '';
+        poster.style.opacity = '1';
+    };
+    // if no poster_path at all, show immediately
+    if (!movie.poster_path) {
+        poster.src = '';
+        poster.style.opacity = '1';
+    }
+
+    poster.alt = movie.title;
     document.getElementById('picker-title').textContent = `${movie.title} (${movie.release_year || '—'})`;
     document.getElementById('picker-desc').textContent  = movie.overview;
     document.getElementById('picker-heart').classList.remove('active');
