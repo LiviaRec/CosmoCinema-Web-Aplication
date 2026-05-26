@@ -205,26 +205,29 @@ function hideBrowseNav() {
 function displayMovie(movie) {
     currentMovie = movie;
 
-    const poster = document.getElementById('picker-poster');
+    const poster  = document.getElementById('picker-poster');
+    const loader  = document.getElementById('poster-loader');
 
-    // fade out, swap src, fade in once loaded
-    poster.style.transition = 'opacity 0.2s';
-    poster.style.opacity = '0';
+    // hide poster, show alien gif in its place while image downloads
+    poster.style.display = 'none';
+    loader.style.display = 'flex';
 
     const newImg = new Image();
     newImg.src = movie.poster_path || '';
     newImg.onload = () => {
         poster.src = newImg.src;
-        poster.style.opacity = '1';
+        loader.style.display = 'none';
+        poster.style.display = 'block';
     };
     newImg.onerror = () => {
         poster.src = '';
-        poster.style.opacity = '1';
+        loader.style.display = 'none';
+        poster.style.display = 'block';
     };
-    // if no poster_path at all, show immediately
+    // if no poster_path at all, resolve immediately
     if (!movie.poster_path) {
-        poster.src = '';
-        poster.style.opacity = '1';
+        loader.style.display = 'none';
+        poster.style.display = 'block';
     }
 
     poster.alt = movie.title;
@@ -247,6 +250,15 @@ function displayMovie(movie) {
     document.getElementById('picker-result').classList.add('visible');
     document.getElementById('picker-result').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('picker-loading').style.display = 'none';
+
+    // preload next and prev posters so they're already cached when user clicks
+    if (browse.active) {
+        [browse.index + 1, browse.index - 1].forEach(i => {
+            if (browse.batch[i]?.poster_path) {
+                new Image().src = browse.batch[i].poster_path;
+            }
+        });
+    }
 }
 
 async function toggleHeart() {
