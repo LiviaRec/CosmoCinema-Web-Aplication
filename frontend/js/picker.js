@@ -1,26 +1,18 @@
-let currentMovie      = null;
-let listPickerTimer   = null;
+let currentMovie    = null;
+let listPickerTimer = null;
 let listPickerSeconds = 10;
 
 const browse = {
-    active:     false,
-    batch:      [],
-    index:      0,
-    page:       1,
-    minRating:  7,
-    totalPages: 1,
-    exhausted:  false,
-    filters:    {},
+    active:  false,
+    filters: {},
+    batch:   [],   // current 10 movies
+    index:   -1,   // position in batch
 
     reset() {
-        this.active     = false;
-        this.batch      = [];
-        this.index      = 0;
-        this.page       = 1;
-        this.minRating  = 7;
-        this.totalPages = 1;
-        this.exhausted  = false;
-        this.filters    = {};
+        this.active  = false;
+        this.filters = {};
+        this.batch   = [];
+        this.index   = -1;
     }
 };
 
@@ -80,7 +72,12 @@ async function pickMovie(random) {
                 duration: document.getElementById('duration-select').value,
             };
             browse.active = true;
-            await loadBrowseBatch();
+            const batch = await fetchBatch();
+            if (!batch.length) return;
+            browse.batch = batch;
+            browse.index = 0;
+            displayMovie(browse.batch[0]);
+            updateBrowseNav();
         }
     } catch {
         showToast("Couldn't reach the stars right now. Try again!");
@@ -88,70 +85,41 @@ async function pickMovie(random) {
     }
 }
 
-async function loadBrowseBatch() {
-    document.getElementById('picker-loading').style.display = 'block';
-
-    // disable nav buttons while loading
-    const prevBtn = document.getElementById('browse-prev');
-    const nextBtn = document.getElementById('browse-next');
-    if (prevBtn) prevBtn.disabled = true;
-    if (nextBtn) nextBtn.disabled = true;
-
+// fetch 10 unique movies for the current filters
+async function fetchBatch() {
     const { genreId, mood, duration } = browse.filters;
     const params = new URLSearchParams();
-
     if (genreId)  params.set('genreId',  genreId);
     if (mood)     params.set('mood',     mood);
     if (duration) params.set('duration', duration);
-    params.set('minRating', browse.minRating);
-    params.set('page',      browse.page);
 
-    try {
-        const data = await apiFetch(`/movies/browse?${params.toString()}`);
-        browse.batch      = data.movies || [];
-        browse.totalPages = data.totalPages || 1;
-        document.getElementById('picker-loading').style.display = 'none';
+    const batch = [];
+    const seenIds = new Set();
+    let attempts = 0;
 
-        if (!browse.batch.length) {
-            await tryLowerRating();
-            return;
+    while (batch.length < 10 && attempts < 25) {
+        attempts++;
+        try {
+            const movie = await apiFetch(`/movies/pick?${params.toString()}`);
+            if (!seenIds.has(movie.tmdb_id)) {
+                seenIds.add(movie.tmdb_id);
+                batch.push(movie);
+            }
+        } catch {
+            break;
         }
+    }
 
-        displayMovie(browse.batch[browse.index]);
-        updateBrowseNav();
-    } catch {
+    if (!batch.length) {
+        showToast("No movies found for those filters.");
         document.getElementById('picker-loading').style.display = 'none';
-        await tryLowerRating();
     }
+
+    return batch;
 }
 
-async function tryLowerRating() {
-    if (browse.page < browse.totalPages) {
-        browse.page++;
-        browse.index = 0;
-        await loadBrowseBatch();
-        return;
-    }
-
-    const newRating = browse.minRating - 1;
-
-    if (newRating < 5) {
-        browse.exhausted = true;
-        showToast('No more movies found for these filters.');
-        updateBrowseNav();
-        return;
-    }
-
-    browse.minRating = newRating;
-    browse.page      = 1;
-    browse.index     = 0;
-    browse.batch     = [];
-    showToast(`Expanding search — showing movies rated ${browse.minRating}+`);
-    await loadBrowseBatch();
-}
-
-function browseNext() {
-    if (!browse.active || browse.exhausted) return;
+async function browseNext() {
+    if (!browse.active) return;
     closeListPicker();
 
     if (browse.index < browse.batch.length - 1) {
@@ -159,19 +127,32 @@ function browseNext() {
         displayMovie(browse.batch[browse.index]);
         updateBrowseNav();
     } else {
+        // end of batch — fetch a fresh 10
+        disableNavButtons(true);
+        document.getElementById('picker-loading').style.display = 'block';
+        const batch = await fetchBatch();
+        disableNavButtons(false);
+        if (!batch.length) return;
+        browse.batch = batch;
         browse.index = 0;
-        browse.batch = [];
-        if (browse.page < browse.totalPages) browse.page++;
-        loadBrowseBatch();
+        displayMovie(browse.batch[0]);
+        updateBrowseNav();
     }
 }
 
 function browsePrev() {
-    if (!browse.active || browse.index === 0) return;
+    if (!browse.active || browse.index <= 0) return;
     closeListPicker();
     browse.index--;
     displayMovie(browse.batch[browse.index]);
     updateBrowseNav();
+}
+
+function disableNavButtons(disabled) {
+    const prev = document.getElementById('browse-prev');
+    const next = document.getElementById('browse-next');
+    if (prev) prev.disabled = disabled;
+    if (next) next.disabled = disabled;
 }
 
 function updateBrowseNav() {
@@ -180,21 +161,11 @@ function updateBrowseNav() {
     if (!browse.active) { nav.style.display = 'none'; return; }
 
     nav.style.display = 'flex';
-
-    document.getElementById('browse-prev').disabled = browse.index === 0;
-    document.getElementById('browse-next').disabled = browse.exhausted;
-
-    const total = browse.batch.length;
-    document.getElementById('browse-counter').textContent = total ? `${browse.index + 1} / ${total}` : '';
-
-    const ratingEl = document.getElementById('browse-rating');
-    if (browse.minRating < 7) {
-        ratingEl.textContent = `Rating ≥ ${browse.minRating}`;
-        ratingEl.style.color = browse.minRating < 6 ? '#ff6b35' : '#f6c90e';
-    } else {
-        ratingEl.textContent = 'Top rated';
-        ratingEl.style.color = 'var(--lime)';
-    }
+    document.getElementById('browse-prev').disabled = browse.index <= 0;
+    document.getElementById('browse-next').disabled = false;
+    document.getElementById('browse-counter').textContent =
+        browse.batch.length ? `${browse.index + 1} / ${browse.batch.length}` : '';
+    document.getElementById('browse-rating').textContent = '';
 }
 
 function hideBrowseNav() {
@@ -208,7 +179,6 @@ function displayMovie(movie) {
     const poster  = document.getElementById('picker-poster');
     const loader  = document.getElementById('poster-loader');
 
-    // hide poster, show alien gif in its place while image downloads
     poster.style.display = 'none';
     loader.style.display = 'flex';
 
@@ -224,7 +194,6 @@ function displayMovie(movie) {
         loader.style.display = 'none';
         poster.style.display = 'block';
     };
-    // if no poster_path at all, resolve immediately
     if (!movie.poster_path) {
         loader.style.display = 'none';
         poster.style.display = 'block';
@@ -251,14 +220,9 @@ function displayMovie(movie) {
     document.getElementById('picker-result').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('picker-loading').style.display = 'none';
 
-    // preload next and prev posters so they're already cached when user clicks
-    if (browse.active) {
-        [browse.index + 1, browse.index - 1].forEach(i => {
-            if (browse.batch[i]?.poster_path) {
-                new Image().src = browse.batch[i].poster_path;
-            }
-        });
-    }
+    // preload next poster in background
+    const next = browse.batch[browse.index + 1];
+    if (next?.poster_path) new Image().src = next.poster_path;
 }
 
 async function toggleHeart() {
