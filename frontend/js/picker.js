@@ -115,7 +115,8 @@ async function loadBrowseBatch() {
         updateBrowseNav();
     } catch {
         document.getElementById('picker-loading').style.display = 'none';
-        await tryLowerRating();
+        console.error('Browse fetch failed:', err);
+        showToast("Couldn't reach the stars right now. Try again!");
     }
 }
 

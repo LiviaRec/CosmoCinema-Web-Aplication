@@ -5,7 +5,7 @@ const path = require('path');
 
 const { register, login, requireAuth } = require('./auth');
 const { favouriteQueries, listQueries, listMovieQueries } = require('./database');
-const { getGenres, discoverMovies, getRandomMovie, formatMovie } = require('./tmdb');
+const { getGenres, discoverMovies, discoverMoviesBatch, getRandomMovie, formatMovie } = require('./tmdb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
