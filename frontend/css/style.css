@@ -991,74 +991,239 @@ section.picker-page {
 /* Responsive Design */
 /* Tablet — 768px to 1024px */
 @media (max-width: 1024px) {
-  .hero h1 { font-size: 60px; }
- 
-  .filters { gap: 20px; }
-  .picker-buttons { gap: 20px; }
- 
+  .hero h1 { font-size: 56px; }
+  .filters { gap: 24px; }
+  .picker-buttons { gap: 24px; }
   .picker-result { padding: 30px 40px; gap: 30px; }
- 
   .fav-card { flex: 0 0 calc(25% - 12px); }
- 
   .list-info { flex: 0 0 200px; }
 }
  
-/* Large mobile / small tablet — up to 768px */
+/* Mobile — up to 768px */
 @media (max-width: 768px) {
-  /* Home navbar */
-  .navbar ul { gap: 20px; flex-wrap: wrap; justify-content: center; }
-  .navbar a { font-size: 16px; }
-  .hero h1 { font-size: 44px; }
-  .hero p { font-size: 13px; }
-  .btn-get-started { padding: 12px 28px; font-size: 16px; }
  
-  /* Inner navbar */
-  .navbar-left { height: auto; padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
-  .logo-left { font-size: 22px; margin: 0; }
-  .navbar-left ul { margin-left: 0; gap: 14px; flex: unset; }
-  .user-avatar { margin-left: auto; }
+  .navbar {
+    padding: 14px 16px;
+    gap: 0;
+  }
  
-  /* Picker */
-  .picker-title { font-size: 20px; text-align: center; padding: 0 16px; }
-  .filters { flex-direction: column; gap: 12px; align-items: center; }
-  .filters select { width: 80vw; max-width: 320px; }
-  .picker-buttons { flex-direction: column; align-items: center; gap: 12px; }
-  .picker-buttons button { width: 80vw; max-width: 320px; }
+  .navbar ul {
+    gap: 16px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+  }
+ 
+  .navbar ul li { margin: 0; }
+ 
+  .navbar a {
+    font-size: 15px;
+  }
+ 
+  .hero {
+    min-height: calc(100svh - 55px);
+    height: auto;
+    padding: 60px 24px 40px;
+    justify-content: center;
+    gap: 16px;
+  }
+ 
+  .hero h1 {
+    font-size: 48px;
+    letter-spacing: -1px;
+  }
+ 
+  .hero p {
+    font-size: 14px;
+  }
+ 
+  .btn-get-started {
+    padding: 14px 36px;
+    font-size: 16px;
+    margin-top: 8px;
+  }
+ 
+  .navbar-left {
+    height: auto;
+    min-height: 55px;
+    padding: 10px 16px;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+ 
+  .logo-left {
+    font-size: 20px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+ 
+  .navbar-left ul {
+    display: flex;
+    flex: 1;
+    margin-left: 16px;
+    gap: 16px;
+    padding: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+ 
+  .navbar-left ul li a {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+ 
+  .user-avatar {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+ 
+  .picker-page {
+    padding: 16px 16px 8px;
+  }
+ 
+  .picker-title {
+    font-size: 18px;
+    text-align: center;
+    line-height: 1.3;
+    padding: 0;
+  }
+ 
+  .filters {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 0 auto;
+  }
+ 
+  .filters select {
+    width: 85vw;
+    max-width: 360px;
+    font-size: 15px;
+    padding: 12px 20px;
+  }
+ 
+  .picker-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+  }
+ 
+  .picker-buttons button {
+    width: 85vw;
+    max-width: 360px;
+    padding: 16px;
+    font-size: 16px;
+  }
  
   .picker-result {
     flex-direction: column;
     align-items: center;
     padding: 20px 16px;
     gap: 20px;
+    max-height: none;
+    overflow: visible;
   }
-  .picker-poster { width: 160px; min-width: unset; height: 240px; }
-  .picker-movie-title { font-size: 1.4rem; text-align: center; }
-  .picker-movie-desc { text-align: center; }
+ 
+  .picker-poster {
+    width: 55vw;
+    max-width: 220px;
+    min-width: unset;
+    height: auto;
+    aspect-ratio: 2/3;
+  }
+ 
+  .picker-movie-info {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+ 
+  .picker-movie-title {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+ 
+  .picker-movie-desc {
+    font-size: 0.85rem;
+    text-align: left;
+    width: 100%;
+  }
+ 
   .picker-actions { justify-content: center; }
   .list-picker-inline { justify-content: center; }
  
-  /* Favourites */
-  .fav-grid { padding: 16px; gap: 12px; }
-  .fav-card { flex: 0 0 calc(33.33% - 8px); }
+  .fav-grid {
+    padding: 14px;
+    gap: 10px;
+  }
  
-  /* Lists */
-  .list-row { flex-direction: column; }
-  .list-info { flex: unset; border-right: none; border-bottom: 1px solid #1e1e30; padding: 16px; }
+  .fav-card {
+    flex: 0 0 calc(33.33% - 7px);
+  }
+ 
+  .lists-toolbar {
+    padding: 10px 16px;
+  }
+ 
+  .list-row {
+    flex-direction: column;
+  }
+ 
+  .list-info {
+    flex: unset;
+    border-right: none;
+    border-bottom: 1px solid #1e1e30;
+    padding: 16px;
+  }
+ 
   .list-title { font-size: 1.2rem; }
-  .list-posters { padding: 12px; }
-  .list-poster { width: 90px; height: 135px; }
  
-  /* Modal */
-  .modal { width: 90vw; padding: 28px 20px; }
+  .list-posters {
+    padding: 12px;
+    gap: 6px;
+  }
  
-  /* Toolbar */
-  .lists-toolbar { padding: 10px 16px; }
+  .list-poster {
+    width: 85px;
+    height: 128px;
+  }
+ 
+  .modal {
+    width: 92vw;
+    padding: 28px 20px;
+  }
 }
  
-/* Small mobile — up to 480px */
 @media (max-width: 480px) {
-  .hero h1 { font-size: 32px; }
-  .fav-card { flex: 0 0 calc(50% - 6px); }
-  .picker-poster { width: 140px; height: 210px; }
-  .navbar-left ul li a { font-size: 15px; }
+  .navbar ul { gap: 10px; }
+  .navbar a  { font-size: 13px; }
+ 
+  .hero h1   { font-size: 38px; }
+  .hero p    { font-size: 13px; }
+ 
+  .logo-left { font-size: 18px; }
+  .navbar-left ul li a { font-size: 13px; }
+  .navbar-left ul { gap: 12px; }
+ 
+  .fav-card  { flex: 0 0 calc(50% - 5px); }
+ 
+  .picker-poster { width: 65vw; }
+  .picker-title  { font-size: 16px; }
+  .filters select,
+  .picker-buttons button { width: 90vw; }
 }
+ 
+@media (max-width: 360px) {
+  .navbar ul { gap: 8px; }
+  .navbar a  { font-size: 12px; }
+  .hero h1   { font-size: 32px; }
+  .logo-left { font-size: 16px; }
+  .navbar-left ul li a { font-size: 12px; }
+}
+ 
