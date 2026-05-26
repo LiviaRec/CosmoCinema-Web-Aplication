@@ -271,6 +271,14 @@ section.picker-page {
   display: flex; 
 }
 
+.picker-poster-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .picker-poster {
   width: 230px;
   min-width: 230px;
@@ -279,7 +287,6 @@ section.picker-page {
   border: 2px solid var(--white);
   border-radius: 10px;
   background: #1a1a2e;
-  flex-shrink: 0;
 }
 
 .picker-movie-info {
@@ -301,6 +308,9 @@ section.picker-page {
   font-size: 0.88rem;
   color: #ccc;
   line-height: 1.75;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 12px 14px;
 }
 
 .picker-actions {
@@ -821,7 +831,6 @@ section.picker-page {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 12px;
 }
  
 .browse-btn {
@@ -1185,7 +1194,12 @@ section.picker-page {
     max-height: none;
     overflow: visible;
   }
- 
+
+  .picker-poster-col {
+    width: 100%;
+    align-items: center;
+  }
+
   .picker-poster {
     width: 55vw;
     max-width: 220px;
@@ -1282,4 +1296,3 @@ section.picker-page {
   .logo-left { font-size: 16px; }
   .navbar-left ul li a { font-size: 12px; }
 }
- 
