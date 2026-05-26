@@ -329,6 +329,17 @@ section.picker-page {
   animation: pulse 1s ease-in-out infinite;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading-alien {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
 @keyframes pulse {

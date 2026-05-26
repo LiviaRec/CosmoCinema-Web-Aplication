@@ -38,16 +38,29 @@ async function getGenres() {
     return data.genres;
 }
 
-async function discoverMovies({ genreId, mood, duration }) { // 100 vo te for quality, 20 pages for variety
-    const params = { sort_by: 'popularity.desc', 'vote_count.gte': 100, include_adult: false };
-    
+async function discoverMovies({ genreId, mood, duration }) {
+    // rotate sort strategies so results aren't always the same top popular movies
+    const sortOptions = [
+        'popularity.desc',
+        'vote_average.desc',
+        'revenue.desc',
+        'primary_release_date.desc',
+        'vote_count.desc',
+    ];
+    const sortBy = sortOptions[Math.floor(Math.random() * sortOptions.length)];
+
+    const params = {
+        sort_by: sortBy,
+        'vote_count.gte': 80,
+        include_adult: false,
+    };
+
     if (genreId) params.with_genres = genreId;
 
     if (mood && MOOD_MAP[mood]) {
         const moodParams = MOOD_MAP[mood];
-
-        for(const [k, v] of Object.entries(moodParams)) {
-            if (k == 'with_genres' && genreId) continue;
+        for (const [k, v] of Object.entries(moodParams)) {
+            if (k === 'with_genres' && genreId) continue;
             params[k] = v;
         }
     }
@@ -56,10 +69,13 @@ async function discoverMovies({ genreId, mood, duration }) { // 100 vo te for qu
         Object.assign(params, DURATION_MAP[duration]);
     }
 
-    const page = Math.floor(Math.random() * 3) +  1;
+    // first check how many pages exist, then pick a random one deep into results
+    const probe = await tmdbFetch('/discover/movie', { ...params, page: 1 });
+    const totalPages = Math.min(probe.total_pages || 1, 20); // TMDB caps at 500 but results thin out
+    const page = Math.floor(Math.random() * totalPages) + 1;
     params.page = page;
 
-    const data = await tmdbFetch('/discover/movie', params);
+    const data = page === 1 ? probe : await tmdbFetch('/discover/movie', params);
     return data.results || [];
 }
 
