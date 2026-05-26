@@ -34,25 +34,15 @@
     <script src="js/modal.js"></script>
     <script>
     function handleSignInClick(e) {
-        e.preventDefault();
-
-        if (auth.isLoggedIn()) {
-            auth.clearSession();
-            updateNavAvatar();
-            document.getElementById('nav-signin').textContent = 'Sign In';
-            showToast('Signed out');
-        } 
-        else {
-        openModal('signin');
+            e.preventDefault();
+            if (auth.isLoggedIn()) {
+                auth.clearSession();
+                updateNavAvatar();
+                showToast('Signed out');
+            } else {
+                openModal('signin');
+            }
         }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const signinLink = document.getElementById('nav-signin');
-        if (auth.isLoggedIn()) {
-            signinLink.textContent = auth.user.username;
-        }
-    });
     </script>
 
 </body>

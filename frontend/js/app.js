@@ -67,6 +67,17 @@ function updateNavAvatar() {
             el.onclick = () => openModal('signin');
         }
     });
+    updateNavSignin();
+}
+
+function updateNavSignin() {
+    const link = document.getElementById('nav-signin');
+    if (!link) return;
+    if (auth.isLoggedIn()) {
+        link.textContent = auth.user.username;
+    } else {
+        link.textContent = 'Sign In';
+    }
 }
 
 let authMode = 'signin';
