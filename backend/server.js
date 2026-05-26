@@ -19,7 +19,6 @@ app.use(express.static('/app/frontend'));
 
 app.post('/api/auth/register', register);
 app.post('/api/auth/login', login);
-
 app.get('/api/auth/me', requireAuth, (req, res) => {
     res.json({ id: req.user.id, username: req.user.username });
 });
@@ -55,6 +54,26 @@ app.get('/api/movies/pick', async (req, res) => {
     catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to pick a movie' });
+    }
+});
+
+app.get('/api/movies/browse', async (req, res) => {
+    try {
+        const { genreId, mood, duration, minRating = 7, page = 1 } = req.query;
+        const { results, totalPages, totalResults } = await discoverMoviesBatch({
+            genreId, mood, duration,
+            minRating: parseFloat(minRating),
+            page: parseInt(page),
+        });
+        if (!results.length) return res.status(404).json({ error: 'No more movies found' });
+        res.json({
+            movies: results.map(formatMovie),
+            totalPages,
+            totalResults,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to browse movies' });
     }
 });
 

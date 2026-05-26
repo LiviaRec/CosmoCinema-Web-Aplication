@@ -88,4 +88,35 @@ function formatMovie(movie) {
     };
 }
 
-module.exports = {getGenres, discoverMovies, getRandomMovie, getMovieDetails, formatMovie};
+async function discoverMoviesBatch({ genreId, mood, duration, minRating = 7, page = 1 }) {
+  const params = {
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': 150,
+    'vote_average.gte': minRating,
+    include_adult: false,
+    page,
+  };
+ 
+  if (genreId) params.with_genres = genreId;
+ 
+  if (mood && MOOD_MAP[mood]) {
+    for (const [k, v] of Object.entries(MOOD_MAP[mood])) {
+      if (k === 'with_genres' && genreId) continue;
+      if (k === 'vote_average.gte') continue; // minRating controls this
+      params[k] = v;
+    }
+  }
+ 
+  if (duration && DURATION_MAP[duration]) {
+    Object.assign(params, DURATION_MAP[duration]);
+  }
+ 
+  const data = await tmdbFetch('/discover/movie', params);
+  return {
+    results: data.results || [],
+    totalPages: data.total_pages || 1,
+    totalResults: data.total_results || 0,
+  };
+}
+
+module.exports = {getGenres, discoverMovies, discoverMoviesBatch, getRandomMovie, getMovieDetails, formatMovie};
