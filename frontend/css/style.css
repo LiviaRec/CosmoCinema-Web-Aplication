@@ -384,21 +384,21 @@ section.picker-page {
 
 /*favourites*/
 .fav-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   padding: 24px 28px;
-  align-items: flex-start;
+  align-items: start;
   position: relative;
   z-index: 1;
 }
 
 .fav-card {
-  flex: 0 0 calc(20% - 13px);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .fav-poster-wrap {
@@ -1080,7 +1080,7 @@ section.picker-page {
   .filters { gap: 24px; }
   .picker-buttons { gap: 24px; }
   .picker-result { padding: 30px 40px; gap: 30px; }
-  .fav-card { flex: 0 0 calc(25% - 12px); }
+  .fav-grid { grid-template-columns: repeat(4, 1fr); }
   .list-info { flex: 0 0 200px; }
 }
  
@@ -1248,13 +1248,10 @@ section.picker-page {
   .picker-actions { justify-content: center; }
   .list-picker-inline { justify-content: center; }
  
-  .fav-grid {
-    padding: 14px;
-    gap: 10px;
-  }
- 
-  .fav-card {
-    flex: 0 0 calc(33.33% - 7px);
+  .fav-grid { 
+    padding: 14px; 
+    gap: 10px; 
+    grid-template-columns: repeat(3, 1fr); 
   }
  
   .lists-toolbar {
@@ -1301,7 +1298,9 @@ section.picker-page {
   .navbar-left ul li a { font-size: 13px; }
   .navbar-left ul { gap: 12px; }
  
-  .fav-card  { flex: 0 0 calc(50% - 5px); }
+  .fav-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
  
   .picker-poster { width: 65vw; }
   .picker-title  { font-size: 16px; }
