@@ -399,6 +399,7 @@ section.picker-page {
   align-items: center;
   gap: 8px;
   width: 100%;
+  align-self: start;
 }
 
 .fav-poster-wrap {
@@ -408,6 +409,8 @@ section.picker-page {
   border-radius: 4px;
   overflow: hidden;
   background: #1a1a2e;
+  flex-shrink: 0;
+  min-height: 0;
 }
 
 .fav-poster {
