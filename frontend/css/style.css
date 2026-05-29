@@ -405,7 +405,7 @@ section.picker-page {
 .fav-poster-wrap {
   width: 210px;
   height: 270px;
-  object-fit: cover;
+  object-fit: contain;
   border: 2px solid var(--white);
   border-radius: 4px;
   overflow: hidden;
