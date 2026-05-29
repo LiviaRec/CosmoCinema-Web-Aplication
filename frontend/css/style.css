@@ -404,13 +404,11 @@ section.picker-page {
 
 .fav-poster-wrap {
   width: 100%;
-  aspect-ratio: 2/3;
+  height: 270px;
   border: 2px solid var(--white);
   border-radius: 4px;
   overflow: hidden;
   background: #1a1a2e;
-  flex-shrink: 0;
-  min-height: 0;
 }
 
 .fav-poster {
