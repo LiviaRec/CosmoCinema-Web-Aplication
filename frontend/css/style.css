@@ -403,12 +403,14 @@ section.picker-page {
 }
 
 .fav-poster-wrap {
-  width: 100%;
+  width: 210px;
   height: 270px;
+  object-fit: cover;
   border: 2px solid var(--white);
   border-radius: 4px;
   overflow: hidden;
   background: #1a1a2e;
+  display:block;
 }
 
 .fav-poster {
